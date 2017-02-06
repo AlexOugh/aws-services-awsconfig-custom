@@ -44,7 +44,7 @@ exports.handler = function (event, context) {
     var input = {
         sessionName: sessionName,
         roles: roles,
-        functionName: process.env.FEDERATION_FUNCTION_NAME,
+        fedFunctionName: process.env.FEDERATION_FUNCTION_NAME,
         region: ruleParameters.region,
         resourceType: invokingEvent.configurationItem.resourceType,
         timeStamp: invokingEvent.configurationItem.configurationItemCaptureTime,
