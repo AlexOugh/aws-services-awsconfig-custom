@@ -21,7 +21,7 @@ Input Parameter Values
 - GitHubSourceRepositoryBranch: master
 - GitHubSourceRepositoryName: aws-services-awsconfig-custom
 - GitHubSourceRepositoryOwner: SungardAS
-- ParameterOverrides: { "FEDERATION_FUNCTION_NAME": "*FederationLambdaFunctionName*" } (See <a href="https://github.com/SungardAS/aws-services-federation">here</a> for the Lambda Function Project for Account Federation)
+- ParameterOverrides: { "FederationLambdaFunctionName": "*FederationLambdaFunctionName*" } (See <a href="https://github.com/SungardAS/aws-services-federation">here</a> for the Lambda Function Project for Account Federation)
 - ProjectImage: aws/codebuild/nodejs:4.3.2
 
 

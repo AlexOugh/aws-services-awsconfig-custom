@@ -1,6 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Lambda Functions for AWSConfig Custom Rules.
+Parameters:
+  FederationLambdaFunctionName:
+    Type: String
+    Description: Federation Lambda Function Name
+
 Resources:
   LambdaFunctionIAMRole:
       Type: "AWS::IAM::Role"
@@ -46,6 +51,9 @@ Resources:
       Role: !GetAtt LambdaFunctionIAMRole.Arn
       MemorySize: 128
       Timeout: 60
+      Environment:
+        Variables:
+          FEDERATION_FUNCTION_NAME: !Ref FederationLambdaFunctionName
 
   SecurityGroupCheckerLambdaFunction:
     Type: AWS::Serverless::Function
@@ -56,6 +64,9 @@ Resources:
       Role: !GetAtt LambdaFunctionIAMRole.Arn
       MemorySize: 128
       Timeout: 60
+      Environment:
+        Variables:
+          FEDERATION_FUNCTION_NAME: !Ref FederationLambdaFunctionName
 
   SecurityPortRangeCheckerLambdaFunction:
     Type: AWS::Lambda::Function
@@ -67,6 +78,9 @@ Resources:
       Role: !GetAtt LambdaFunctionIAMRole.Arn
       MemorySize: 128
       Timeout: 60
+      Environment:
+        Variables:
+          FEDERATION_FUNCTION_NAME: !Ref FederationLambdaFunctionName
 
 Outputs:
   IAMUserPolicyCheckerLambdaFunctionArn:
