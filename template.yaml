@@ -69,9 +69,8 @@ Resources:
           FEDERATION_FUNCTION_NAME: !Ref FederationLambdaFunctionName
 
   SecurityPortRangeCheckerLambdaFunction:
-    Type: AWS::Lambda::Function
+    Type: AWS::Serverless::Function
     Properties:
-      FunctionName: awsconfigrules-sg-portrange-checker
       Handler: index_sg_portrange_checker.handler
       Runtime: nodejs4.3
       CodeUri: ./src
