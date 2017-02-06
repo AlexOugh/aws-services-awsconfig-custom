@@ -26,14 +26,14 @@ Resources:
                   -
                     Effect: "Allow"
                     Action:
-                      - "config:Put*",
-                      - "config:Get*",
-                      - "config:List*",
-                      - "config:Describe*",
-                      - "ec2:Describe*",
-                      - "logs:CreateLogGroup",
-                      - "logs:CreateLogStream",
-                      - "logs:PutLogEvents",
+                      - "config:Put*"
+                      - "config:Get*"
+                      - "config:List*"
+                      - "config:Describe*"
+                      - "ec2:Describe*"
+                      - "logs:CreateLogGroup"
+                      - "logs:CreateLogStream"
+                      - "logs:PutLogEvents"
                       - "lambda:AddPermission"
                     Resource: "*"
 
