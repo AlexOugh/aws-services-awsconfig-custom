@@ -40,6 +40,7 @@ Resources:
                       - "logs:CreateLogStream"
                       - "logs:PutLogEvents"
                       - "lambda:AddPermission"
+                      - "lambda:InvokeFunction"
                     Resource: "*"
 
   IAMUserPolicyCheckerLambdaFunction:
