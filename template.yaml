@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Lambda Functions for AWSConfig Custom Rules.
+Resources:
+  LambdaFunctionIAMRole:
+      Type: "AWS::IAM::Role"
+      Properties:
+          Path: "/"
+          AssumeRolePolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Sid: "AllowLambdaServiceToAssumeRole"
+                Effect: "Allow"
+                Action:
+                  - "sts:AssumeRole"
+                Principal:
+                  Service:
+                    - "lambda.amazonaws.com"
+          Policies:
+            -
+              PolicyName: "InlinePolicy"
+              PolicyDocument:
+                Version: "2012-10-17"
+                Statement:
+                  -
+                    Effect: "Allow"
+                    Action:
+                      - "config:Put*",
+                      - "config:Get*",
+                      - "config:List*",
+                      - "config:Describe*",
+                      - "ec2:Describe*",
+                      - "logs:CreateLogGroup",
+                      - "logs:CreateLogStream",
+                      - "logs:PutLogEvents",
+                      - "lambda:AddPermission"
+                    Resource: "*"
+
+  IAMUserPolicyCheckerLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index_iam_user_policy_checker.handler
+      Runtime: nodejs4.3
+      CodeUri: ./src
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      MemorySize: 128
+      Timeout: 60
+
+  SecurityGroupCheckerLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index_security_group_checker.handler
+      Runtime: nodejs4.3
+      CodeUri: ./src
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      MemorySize: 128
+      Timeout: 60
+
+  SecurityPortRangeCheckerLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: index_sg_portrange_checker.handler
+      Runtime: nodejs4.3
+      CodeUri: ./src
+      Role: !GetAtt LambdaFunctionIAMRole.Arn
+      MemorySize: 128
+      Timeout: 60
+
+Outputs:
+  IAMUserPolicyCheckerLambdaFunctionArn:
+    Description: "IAM User Policy Checker Lambda Function ARN"
+    Value: !GetAtt IAMUserPolicyCheckerLambdaFunction.Arn
+  SecurityGroupCheckerLambdaFunctionArn:
+    Description: "Security Group Checker Lambda Function ARN"
+    Value: !GetAtt SecurityGroupCheckerLambdaFunction.Arn
+  SecurityPortRangeCheckerLambdaFunction:
+    Description: "Security Port Range Checker Lambda Function ARN"
+    Value: !GetAtt SecurityPortRangeCheckerLambdaFunction.Arn
