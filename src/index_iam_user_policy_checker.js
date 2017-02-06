@@ -4,7 +4,7 @@ exports.handler = function(event, context ) {
     const EVALUATION_TYPES = {
         COMPLAINT: 'COMPLIANT',
         NON_COMPLIANT: 'NON_COMPLIANT',
-    }; 
+    };
 
     var getEvaluation = function getEvaluationParam(userId,value,timeStamp) {
         var eval = [];
@@ -21,8 +21,7 @@ exports.handler = function(event, context ) {
         return eval;
     }
 
-    var aws_sts = new (require('../lib/aws-promise/sts.js'))();
-    var aws_config = new (require('../lib/aws/awsconfig.js'))();
+    var aws_lambda = require('aws-services-lib/aws_promise/lambda.js');
     if (event.ruleParameters){
         var ruleParameters = JSON.parse(event.ruleParameters);
         event.federateRoleName = ruleParameters.federateRoleName;
@@ -63,28 +62,27 @@ exports.handler = function(event, context ) {
     var input = {
         sessionName: sessionName,
         roles: roles,
+        functionName: process.env.FEDERATION_FUNCTION_NAME,
         region: ruleParameters.region,
         resourceType: invokingEvent.configurationItem.resourceType,
         resourceId: invokingEvent.configurationItem.resourceId,
         timeStamp: invokingEvent.configurationItem.configurationItemCaptureTime,
         resultToken: resultToken
     };
-    var stsAssumeRolePromise = aws_sts.assumeRoles(input);
-    stsAssumeRolePromise.then(function (data) {
-        iamService = new (require('../lib/aws-promise/iam.js'))();
+    aws_lambda.federate(input).then(function (data) {
+        iamService = new (require('aws-services-lib/aws-promise/iam.js'))();
         global.creds = data;
         return iamService.getUsersWithPolicies(data);
     }).then(function(data) {
         evaluations = [];
-        var aws_config = new (require('../lib/aws/awsconfig.js'))();
+        var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
         keys = Object.keys(data);
-        for ( var idx in keys) { 
+        for ( var idx in keys) {
             var evaluation = getEvaluation(keys[idx],data[keys[idx]],input.timeStamp);
             evalresult = {};
             evalresult.evaluations = evaluation;
             evalresult.resultToken = resultToken;
             evalresult.creds = global.creds;
-            //TODO: Remove hardcoded region
             evalresult.region = ruleParameters.region;
             aws_config.sendEvaluations(evalresult, function(data){});
         }

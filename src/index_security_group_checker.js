@@ -1,9 +1,9 @@
 
 exports.handler = function (event, context) {
 
-    var aws_sts = new (require('../lib/aws/sts'))();
-    var aws_ec2 = new (require('../lib/aws/ec2.js'))();
-    var aws_config = new (require('../lib/aws/awsconfig.js'))();
+    var aws_lambda = new (require('aws-services-lib/aws/lambda.js'))();
+    var aws_ec2 = new (require('aws-services-lib/aws/ec2.js'))();
+    var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
     if (event.ruleParameters){
         var ruleParameters = JSON.parse(event.ruleParameters);
         event.federateRoleName = ruleParameters.federateRoleName;
@@ -45,6 +45,7 @@ exports.handler = function (event, context) {
     var input = {
         sessionName: sessionName,
         roles: roles,
+        functionName: process.env.FEDERATION_FUNCTION_NAME,
         region: ruleParameters.region,
         groupName: ruleParameters.groupName,
         resourceType: invokingEvent.configurationItem.resourceType,
@@ -62,12 +63,12 @@ exports.handler = function (event, context) {
     function errored(err) { context.fail(err, null); }
 
     var flows = [
-        {func:aws_sts.assumeRoles, success:aws_ec2.securityGroupHasRules, failure:failed, error:errored},
+        {func:aws_lambda.federate, success:aws_ec2.securityGroupHasRules, failure:failed, error:errored},
         {func:aws_ec2.securityGroupHasRules, success:aws_config.sendEvaluations, failure:aws_config.sendEvaluations, error:errored},
         {func:aws_config.sendEvaluations, success:succeeded, failure:failed, error:errored},
     ];
     aws_ec2.flows = flows;
-    aws_sts.flows = flows;
+    aws_lambda.flows = flows;
     aws_config.flows = flows;
 
     flows[0].func(input);

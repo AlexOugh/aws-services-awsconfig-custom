@@ -1,9 +1,9 @@
 
 exports.handler = function (event, context) {
 
-    var aws_sts = new (require('../lib/aws/sts'))();
-    var aws_sg = new (require('../lib/aws/sg-range.js'))();
-    var aws_config = new (require('../lib/aws/awsconfig.js'))();
+    var aws_lambda = new (require('aws-services-lib/aws/lambda.js'))();
+    var aws_sg = new (require('aws-services-lib/aws/sg-range.js'))();
+    var aws_config = new (require('aws-services-lib/aws/awsconfig.js'))();
     if (event.ruleParameters){
         var ruleParameters = JSON.parse(event.ruleParameters);
         event.federateRoleName = ruleParameters.federateRoleName;
@@ -36,12 +36,15 @@ exports.handler = function (event, context) {
     if (invokingEvent) invokingEvent = JSON.parse(invokingEvent);
     else invokingEvent = {"configurationItem": {"resourceType": "SecurityGroup","resourceId": event.region, "configurationItemCaptureTime": new Date()}};
 
+    if (!ruleParameters) ruleParameters = {"startPort": event.startPort, "region": event.region, "endPort": event.endPort};
+
     if(event.resultToken) var resultToken = event.resultToken;
     else var resultToken = "110ec58a-a0f2-4ac4-8393-c866d813b8d1";
 
     var input = {
         sessionName: sessionName,
         roles: roles,
+        functionName: process.env.FEDERATION_FUNCTION_NAME,
         region: ruleParameters.region,
         resourceType: invokingEvent.configurationItem.resourceType,
         timeStamp: invokingEvent.configurationItem.configurationItemCaptureTime,
@@ -55,11 +58,11 @@ exports.handler = function (event, context) {
     function errored(err) { context.fail(err, null); }
 
     var flows = [
-        {func:aws_sts.assumeRoles, success:aws_sg.sgInboundRulesHasPortRange, failure:failed, error:errored},
+        {func:aws_lambda.federate, success:aws_sg.sgInboundRulesHasPortRange, failure:failed, error:errored},
         {func:aws_sg.sgInboundRulesHasPortRange, success:aws_config.sendEvaluation, failure:aws_config.sendEvaluation, error:errored},
     ];
     aws_sg.flows = flows;
-    aws_sts.flows = flows;
+    aws_lambda.flows = flows;
     aws_config.flows = flows;
 
     flows[0].func(input);
