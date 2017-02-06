@@ -44,9 +44,8 @@ Resources:
                     Resource: "*"
 
   IAMUserPolicyCheckerLambdaFunction:
-    Type: AWS::Lambda::Function
+    Type: AWS::Serverless::Function
     Properties:
-      FunctionName: awsconfigrules-iam-userpolicy-checker
       Handler: index_iam_user_policy_checker.handler
       Runtime: nodejs4.3
       CodeUri: ./src
@@ -58,9 +57,8 @@ Resources:
           FEDERATION_FUNCTION_NAME: !Ref FederationLambdaFunctionName
 
   SecurityGroupCheckerLambdaFunction:
-    Type: AWS::Lambda::Function
+    Type: AWS::Serverless::Function
     Properties:
-      FunctionName: awsconfigrules-security-group-checker
       Handler: index_security_group_checker.handler
       Runtime: nodejs4.3
       CodeUri: ./src
@@ -72,9 +70,8 @@ Resources:
           FEDERATION_FUNCTION_NAME: !Ref FederationLambdaFunctionName
 
   SecurityPortRangeCheckerLambdaFunction:
-    Type: AWS::Lambda::Function
+    Type: AWS::Serverless::Function
     Properties:
-      FunctionName: awsconfigrules-sg-portrange-checker
       Handler: index_sg_portrange_checker.handler
       Runtime: nodejs4.3
       CodeUri: ./src
